@@ -71,6 +71,8 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*Copy*
+Data/
 
 # pyenv
 .python-version

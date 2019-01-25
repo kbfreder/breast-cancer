@@ -89,11 +89,11 @@ def clean_and_dropna(df):
     return df4, df6
 
 
-def clean_only(df):
-    df['SRV_TIME_MON'] = convert_to_num_nan(df, 'SRV_TIME_MON', 9999)
-    df['YEAR_DX'] = pd.to_numeric(df['YEAR_DX'])
+def clean_only_mod(df2):
+    df2['SRV_TIME_MON'] = convert_to_num_nan(df2, 'SRV_TIME_MON', 9999)
+    df2['YEAR_DX'] = pd.to_numeric(df2['YEAR_DX'])
     # drop
-    df2 = df.drop(df[df['YEAR_DX'] > 2010].index)
+    # df2 = df.drop(df[df['YEAR_DX'] > 2010].index)
      # create target class
     df2['TARGET'] = df2['SRV_TIME_MON'].apply(lambda x: 1 if x >= 60 else 0)
     df2['SRV_TIME_MON_FLAG'] = convert_to_num_nan(df2, 'SRV_TIME_MON_FLAG', 9)

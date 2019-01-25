@@ -1,0 +1,156 @@
+<html>
+<head>
+  <!-- <link rel="stylesheet" href="/static/css/bootstrap.css" /> -->
+  <!-- <link rel="stylesheet" href="/static/css/kf.css" /> -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <style>
+  .result_head {
+    font-size: 18pt;
+    font-weight: bold;
+    padding-left: 4px;
+  }
+  .result_body {
+    font-size: 14pt;
+    font-weight: normal;
+    padding-left: 8px;
+  }
+
+  </style>
+</head>
+<body>
+  <h1>5-year Breast Cancer Survival Predictor</h1>
+
+<table>
+
+  <tr><td>Age at time of Diagnosis:</td>
+  <td>
+    <input type="text" id="age"></input>
+  </td></tr>
+
+  <tr><td>Tumor Grade</td>
+      <td>
+        <select id="grade">
+          <option value="1">G1 (well-differentiated)</option>
+          <option value="2">G2 (moderately-differentiated)</option>
+          <option value="3">G3 (poorly-differentiated)</option>
+          <option value="4">G4 (undifferentiated)</option>
+        </select></td></tr>
+
+  <tr><td>Tumor Size</td>
+    <td>
+      <input type="text" id="size"></input>
+    </td>
+    <td>in millimeters</td>
+  </tr>
+
+  <tr><td>Number of tumors found</td>
+    <td><input type="number" id="sequ" min="1" max="50"></input></td>
+  </tr>
+
+  <tr><td>Surgery Performed?</td>
+    <td><select id="surg">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+      </td>
+  </tr>
+
+  <tr><td>Invasiveness</td>
+    <td><select id="invas">
+      <option value="0">Non-Invasive</option>
+      <option value="1">Invasive</option>
+    </select>
+    </td>
+    <td>Carcinoma in-situ = non-invasive. Malignant = invasive</td>
+  </tr>
+
+  <tr><td>Lymph Nodes - Number Positive</td>
+    <td><input type=number id="pos_nodes" min="0" max="89"></input></td>
+  </tr>
+
+
+  <tr><td>Marital Status</td>
+    <td>
+        <select id="marital">
+          <option value="1">Married</option>
+          <option value="2">Single</option>
+        </select>
+    </td>
+    <td>"Married" includes being in a committed long-term relationship.</td>
+  </tr>
+
+  <tr><td>Race</td>
+  <td>
+    <select id="race">
+      <option value="White">White</option>
+      <option value="Black">Black</option>
+      <option value="Other">Other</option>
+    </select></td></tr>
+
+</table>
+
+<br>
+<br>
+
+  <div>
+    <button id="submit">Get Prediction</button>
+  </div>
+
+<br>
+<hr>
+<br>
+
+<div class="result_head">
+    <!-- <span id="result_title"></span> -->
+    Your 5-year survival result:
+  <br>
+</div>
+  <div class"result_body">
+    <p>You will <span id="hard_predict"></span>
+    <br>with a probability of <span id="soft_predict">%</span>
+  </div>
+
+</body>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+  <script>
+  $('#submit').click( () => { run_prediction(); } );
+
+  function run_prediction(){
+    let inputs = {
+      'MAR_STAT_MOD': $('#marital').val(),
+      'RACE_MOD': $('#race').val(),
+      'AGE_DX': $('#age').val(),
+      'GRADE': $('#grade').val(),
+      'TUMSIZ':$('#size').val(),
+      'SURG': $('#surg').val(),
+      'SEQ_NUM':$('#sequ').val(),
+      'POS_NODES': $('#pos_nodes').val(),
+      'INVAS': $('#invas').val()
+    }
+
+    console.log(inputs);
+
+    $.ajax({
+      type: "POST",
+      contentType: "application/json; charset=utf-8",
+      url: "/survival",  // Replace with URL of POST handler
+      dataType: "json",
+      async: true,
+      data: JSON.stringify(inputs),
+      success: (result) => {
+        $('#hard_predict').html(result['prediction'] ? 'survive' : 'not survive' );
+        $('#soft_predict').html(result['prob_survived']);
+        // $('$result_title').html("Your prediction for 5-year survival is:");
+        // $('$result_text').html("You will " result['prediction'] " with a probability of " result['prob_survived' "%");
+      },
+      error: (result) => {
+        alert('Something went wrong');
+      }
+    })
+
+  }
+
+  </script>
+
+</html>
