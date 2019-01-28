@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime as dt
 
 cols_to_include = ['MAR_STAT_MOD',
                    'RACE_MOD',
@@ -75,6 +76,10 @@ def convert_stage(x):
     else:
         return int(x)
 
+def month_plus_year(row):
+    return dt.datetime(year = row['YEAR_DX'], month = row['MDXRECMP'], day=1)
+
+
 def clean_and_dropna(df):
 
     df3 = clean_only(df)
@@ -128,6 +133,15 @@ def clean_only_mod(df2):
 
     df3['INVAS'] = df3['BEHO3V'].apply(lambda x: 0 if x == '2' else 1)
     df3['HST_STGA'] = df3['HST_STGA'].apply(lambda x: convert_stage(x))
+
+    # Create DX Date & Censor Time columns:
+    df3['MDXRECMP'] = pd.to_numeric(df3['MDXRECMP'])
+    df3['DATE_DX'] = df3.apply(lambda row: month_plus_year(row), axis=1)
+    df3['CENSOR_TIME_MON'] = (dt.datetime(year=2015, month=12, day=31) - df3['DATE_DX']) / dt.timedelta(days=30)
+
+    # Create 'DEATH' (event/ outcome) column using 'CODPUB' (recode for cause of death)
+    df3 = df3.drop(df3[(df3['CODPUB'] == '41000') | (df3['CODPUB'] == '99999')].index)
+    df3['DEATH'] = df3['CODPUB'].apply(lambda x: 0 if x == '00000' else 1)
 
     return df3
 
